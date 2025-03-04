@@ -6,19 +6,78 @@
     <title>冥想計時器</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
+        // 初始化LIFF應用程式
         function initLIFF() {
-            liff.init({ liffId: "2007002444-28qJ8xg3" })
-                .then(() => console.log("LIFF 初始化成功"))
+            liff.init({ liffId: "2007002444-28qJ8xg3" })  // 填入你的 LIFF ID
+                .then(() => {
+                    console.log("LIFF 初始化成功");
+                    // 如果LIFF初始化成功，就可以取得用戶資訊或開始其他操作
+                    getUserInfo();
+                })
                 .catch(err => console.error("LIFF 初始化失敗", err));
         }
-        function startMeditation() {
-            alert("開始冥想！"); // 之後這裡可以加上計時邏輯
+
+        // 取得LINE用戶資訊
+        function getUserInfo() {
+            if (liff.isLoggedIn()) {
+                liff.getProfile().then(profile => {
+                    console.log("用戶名稱:", profile.displayName);
+                    console.log("用戶ID:", profile.userId);
+                    // 這裡可以將用戶ID存起來，用來上傳數據
+                }).catch(err => console.error("無法取得用戶資訊", err));
+            } else {
+                liff.login();
+            }
         }
+
+        // 開始冥想計時並上傳數據
+        let meditationTime = 0;  // 記錄冥想時間（秒）
+        let meditationInterval;
+
+        function startMeditation() {
+            meditationTime = 0;
+            meditationInterval = setInterval(function() {
+                meditationTime++;
+                document.getElementById("meditation-time").innerText = "冥想時間: " + meditationTime + " 秒";
+            }, 1000);  // 每秒更新一次計時器
+        }
+
+        // 停止冥想並上傳數據到 Google Apps Script
+        function stopMeditation() {
+            clearInterval(meditationInterval);
+            document.getElementById("meditation-time").innerText = "冥想時間: " + meditationTime + " 秒";
+
+            // 上傳冥想時間和用戶ID到 Google Apps Script
+            uploadDataToSheet(meditationTime);
+        }
+
+        // 上傳數據到 Google Apps Script
+        function uploadDataToSheet(meditationTime) {
+            const data = {
+                userId: liff.getDecodedIDToken().sub,  // LINE 用戶 ID
+                meditationTime: meditationTime         // 冥想時間
+            };
+
+            fetch("你的_GAS_API_網址", {  // 在這裡填入你的 Google Apps Script Web API URL
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            }).then(response => response.json())
+              .then(result => {
+                  console.log("數據已成功上傳", result);
+              })
+              .catch(error => {
+                  console.error("數據上傳失敗", error);
+              });
+        }
+
         window.onload = initLIFF;
     </script>
 </head>
 <body>
     <h1>冥想計時器</h1>
+    <p id="meditation-time">冥想時間: 0 秒</p>
     <button onclick="startMeditation()">開始冥想</button>
+    <button onclick="stopMeditation()">停止冥想</button>
 </body>
 </html>
