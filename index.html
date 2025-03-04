@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冥想計時器</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        function initLIFF() {
+            liff.init({ liffId: "你的_LIFF_ID" })
+                .then(() => console.log("LIFF 初始化成功"))
+                .catch(err => console.error("LIFF 初始化失敗", err));
+        }
+        function startMeditation() {
+            alert("開始冥想！"); // 之後這裡可以加上計時邏輯
+        }
+        window.onload = initLIFF;
+    </script>
+</head>
+<body>
+    <h1>冥想計時器</h1>
+    <button onclick="startMeditation()">開始冥想</button>
+</body>
+</html>
