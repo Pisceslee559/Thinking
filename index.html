@@ -24,6 +24,7 @@
                     console.log("用戶名稱:", profile.displayName);
                     console.log("用戶ID:", profile.userId);
                     // 這裡可以將用戶ID存起來，用來上傳數據
+                    userId = profile.userId;  // 儲存用戶ID
                 }).catch(err => console.error("無法取得用戶資訊", err));
             } else {
                 liff.login();
@@ -54,7 +55,7 @@
         // 上傳數據到 Google Apps Script
         function uploadDataToSheet(meditationTime) {
             const data = {
-                userId: liff.getDecodedIDToken().sub,  // LINE 用戶 ID
+                userId: userId,  // LINE 用戶 ID
                 meditationTime: meditationTime         // 冥想時間
             };
 
