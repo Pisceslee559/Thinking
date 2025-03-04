@@ -7,11 +7,11 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
         // 初始化LIFF應用程式
+        let userId;  // 儲存用戶ID
         function initLIFF() {
             liff.init({ liffId: "2007002444-28qJ8xg3" })  // 填入你的 LIFF ID
                 .then(() => {
                     console.log("LIFF 初始化成功");
-                    // 如果LIFF初始化成功，就可以取得用戶資訊或開始其他操作
                     getUserInfo();
                 })
                 .catch(err => console.error("LIFF 初始化失敗", err));
@@ -23,7 +23,6 @@
                 liff.getProfile().then(profile => {
                     console.log("用戶名稱:", profile.displayName);
                     console.log("用戶ID:", profile.userId);
-                    // 這裡可以將用戶ID存起來，用來上傳數據
                     userId = profile.userId;  // 儲存用戶ID
                 }).catch(err => console.error("無法取得用戶資訊", err));
             } else {
@@ -59,7 +58,7 @@
                 meditationTime: meditationTime         // 冥想時間
             };
 
-            fetch("https://script.google.com/macros/s/AKfycbyVF-QgLTUV6CMpxSaVmPfriq3w6XOBmF8NvyLe1DK064zloEXyajMHe5MQAR4ZwZoeRA/exec", {  // 在這裡填入你的 Google Apps Script Web API URL
+            fetch("https://script.google.com/macros/s/AKfycbzFuaANLuCzJ8Dv_52NDkQHvHKYgTV7LVj7GA8epUGE76ODJNWF8DICw3J__iOoU3lJ/exec", {  // 在這裡填入你的 Google Apps Script Web API URL
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -74,11 +73,67 @@
 
         window.onload = initLIFF;
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 36px;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        #startButton, #nourishButton, #advancedMeditationButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        #startButton:hover, #nourishButton:hover, #advancedMeditationButton:hover {
+            background-color: #45a049;
+        }
+
+        #meditationTime, #energy, #plantProgress, #meditationLevel {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .info {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>冥想計時器</h1>
-    <p id="meditation-time">冥想時間: 0 秒</p>
-    <button onclick="startMeditation()">開始冥想</button>
-    <button onclick="stopMeditation()">停止冥想</button>
+    <div class="container">
+        <button id="startButton" onclick="startMeditation()">開始冥想</button>
+        <p id="meditation-time">冥想時間: 0 秒</p>
+        <button onclick="stopMeditation()">停止冥想</button>
+    </div>
 </body>
 </html>
