@@ -6,17 +6,18 @@
     <title>冥想計時器</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
-        let userId;  // 儲存用戶ID
+        let userId;
         let meditationTime = 0;  // 記錄冥想時間（秒）
         let meditationInterval;
-        let energy = 0;  // 能量數值
-        let meditationLevel = 1;  // 冥想等級
+        let energy = 0;  // 能量
+        let meditationLevel = 0;  // 冥想等級
 
         // 初始化LIFF應用程式
         function initLIFF() {
             liff.init({ liffId: "2007002444-28qJ8xg3" })  // 填入你的 LIFF ID
                 .then(() => {
                     console.log("LIFF 初始化成功");
+                    // 如果LIFF初始化成功，就可以取得用戶資訊或開始其他操作
                     getUserInfo();
                 })
                 .catch(err => console.error("LIFF 初始化失敗", err));
@@ -28,16 +29,10 @@
                 liff.getProfile().then(profile => {
                     console.log("用戶名稱:", profile.displayName);
                     console.log("用戶ID:", profile.userId);
-                    userId = profile.userId;  // 儲存用戶ID
-
-                    // 檢查是否有儲存用戶ID，沒有的話，創建並儲存它
-                    if (!localStorage.getItem(userId)) {
-                        localStorage.setItem(userId, profile.displayName);  // 儲存用戶ID及名稱
-                        console.log("用戶ID創建並儲存:", userId);
-                    }
-
-                    // 若已經有用戶ID，可繼續進行其他操作
-                    console.log("用戶已登入，可以開始冥想");
+                    // 儲存用戶ID
+                    userId = profile.userId;
+                    // 上傳用戶資料
+                    uploadDataToSheet(meditationTime, energy, meditationLevel);
                 }).catch(err => console.error("無法取得用戶資訊", err));
             } else {
                 liff.login();
@@ -47,6 +42,12 @@
         // 開始冥想計時並計算能量
         function startMeditation() {
             meditationTime = 0;
+            energy = 0;
+            meditationLevel = 0;
+
+            // 立即上傳用戶資料到試算表
+            uploadDataToSheet(meditationTime, energy, meditationLevel);
+
             meditationInterval = setInterval(function() {
                 meditationTime++;
                 energy = Math.floor(meditationTime / 10);  // 每 10 秒增加 1 能量
@@ -61,14 +62,12 @@
             }, 1000);  // 每秒更新一次計時器
         }
 
-        // 停止冥想並上傳數據到 Google Apps Script
+        // 停止冥想並上傳數據到 Google 試算表
         function stopMeditation() {
             clearInterval(meditationInterval);
             document.getElementById("meditation-time").innerText = "冥想時間: " + meditationTime + " 秒";
-            document.getElementById("energy").innerText = "能量: " + energy;
-            document.getElementById("meditation-level").innerText = "冥想等級: " + meditationLevel;
 
-            // 上傳數據到 Google Apps Script
+            // 上傳冥想時間和用戶ID到 Google Apps Script
             uploadDataToSheet(meditationTime, energy, meditationLevel);
         }
 
@@ -96,69 +95,13 @@
 
         window.onload = initLIFF;
     </script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-        }
-
-        h1 {
-            color: #4CAF50;
-            font-size: 36px;
-        }
-
-        .container {
-            text-align: center;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-
-        #startButton, #nourishButton, #advancedMeditationButton {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-
-        #startButton:hover, #nourishButton:hover, #advancedMeditationButton:hover {
-            background-color: #45a049;
-        }
-
-        #meditationTime, #energy, #plantProgress, #meditationLevel {
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .info {
-            font-size: 16px;
-            color: #666;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
     <h1>冥想計時器</h1>
-    <div class="container">
-        <button id="startButton" onclick="startMeditation()">開始冥想</button>
-        <p id="meditation-time">冥想時間: 0 秒</p>
-        <p id="energy">能量: 0</p>
-        <p id="meditation-level">冥想等級: 1</p>
-        <button onclick="stopMeditation()">停止冥想</button>
-    </div>
+    <p id="meditation-time">冥想時間: 0 秒</p>
+    <p id="energy">能量: 0</p>
+    <p id="meditation-level">冥想等級: 0</p>
+    <button onclick="startMeditation()">開始冥想</button>
+    <button onclick="stopMeditation()">停止冥想</button>
 </body>
 </html>
