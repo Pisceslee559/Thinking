@@ -41,6 +41,8 @@
 
         // 開始冥想計時並計算能量
         function startMeditation() {
+            if (meditationInterval) return;  // 如果計時器已經在運行，則不再啟動
+
             meditationTime = 0;
             energy = 0;
             meditationLevel = 0;
@@ -65,6 +67,7 @@
         // 停止冥想並上傳數據到 Google 試算表
         function stopMeditation() {
             clearInterval(meditationInterval);
+            meditationInterval = null;  // 清空計時器變數
             document.getElementById("meditation-time").innerText = "冥想時間: " + meditationTime + " 秒";
 
             // 上傳冥想時間和用戶ID到 Google Apps Script
@@ -80,7 +83,7 @@
                 meditationLevel: meditationLevel  // 冥想等級
             };
 
-            fetch("https://script.google.com/macros/s/AKfycbyVF-QgLTUV6CMpxSaVmPfriq3w6XOBmF8NvyLe1DK064zloEXyajMHe5MQAR4ZwZoeRA/exec", {  // 在這裡填入你的 Google Apps Script Web API URL
+            fetch("https://script.google.com/macros/s/AKfycbzFuaANLuCzJ8Dv_52NDkQHvHKYgTV7LVj7GA8epUGE76ODJNWF8DICw3J__iOoU3lJ/exec", {  // 在這裡填入你的 Google Apps Script Web API URL
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
